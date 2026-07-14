@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tags Virtuales a Exentos – AUSA · 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',sans-serif; background:#080f1a; color:#ddeeff; min-height:100vh; }
+
+header {
+  background:linear-gradient(135deg,#0a1e35,#060e1a);
+  border-bottom:1px solid #00aaff22;
+  padding:20px 36px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.logo { display:flex; align-items:center; gap:16px; }
+.logo-box { width:52px; height:52px; background:linear-gradient(135deg,#005588,#0099dd); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; }
+.logo h1 { font-size:1.1rem; font-weight:800; color:#fff; }
+.logo p  { font-size:0.7rem; color:#4488aa; margin-top:3px; }
+.badges { display:flex; gap:8px; flex-wrap:wrap; }
+.badge { font-size:0.68rem; border-radius:20px; padding:5px 14px; font-weight:600; }
+.b-blue  { background:#00aaff15; color:#44ccff; border:1px solid #00aaff33; }
+.b-green { background:#44cc7715; color:#44cc77; border:1px solid #44cc7733; }
+.b-gold  { background:#ffaa0015; color:#ffcc44; border:1px solid #ffaa0033; }
+
+.main { padding:24px 36px; }
+.sec { font-size:0.72rem; color:#4488aa; text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.sec::after { content:''; flex:1; height:1px; background:#0d2030; }
+
+/* KPIs */
+.kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px; }
+.kpi {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #ffffff08; border-radius:16px; padding:18px 20px;
+  position:relative; overflow:hidden;
+}
+.kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--c1),var(--c2)); }
+.kpi-ico { font-size:1.4rem; margin-bottom:8px; }
+.kpi-val { font-size:1.9rem; font-weight:900; color:#fff; line-height:1; margin-bottom:4px; }
+.kpi-lbl { font-size:0.65rem; color:#4488aa; text-transform:uppercase; letter-spacing:.5px; }
+.kpi-sub { font-size:0.65rem; color:#2a4055; margin-top:3px; }
+
+/* OPERADORES */
+.ops-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin-bottom:24px; }
+.op-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #ffffff08; border-radius:16px; padding:22px;
+  border-top:3px solid var(--c);
+}
+.op-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.op-avatar {
+  width:46px; height:46px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.85rem; font-weight:800; color:#fff;
+  background:var(--c); box-shadow:0 3px 10px var(--c)55; flex-shrink:0;
+}
+.op-name { font-size:0.92rem; font-weight:700; color:#fff; }
+.op-role { font-size:0.68rem; color:#4488aa; margin-top:2px; }
+
+/* Stats del operador */
+.op-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.op-stat-card {
+  background:#080f1a; border-radius:10px; padding:12px; text-align:center;
+  border:1px solid #ffffff0d;
+}
+.op-stat-val { font-size:1.4rem; font-weight:900; line-height:1; margin-bottom:3px; }
+.op-stat-lbl { font-size:0.62rem; color:#4488aa; text-transform:uppercase; letter-spacing:.3px; }
+
+/* Botones de carga */
+.op-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.load-btn-wrap {
+  border-radius:10px; padding:14px; text-align:center; cursor:pointer;
+  transition:all .2s; border:2px dashed;
+}
+.load-btn-wrap:hover { transform:translateY(-1px); }
+.load-btn-wrap.loaded { border-style:solid; }
+.load-btn-analizados { border-color:#00aaff33; background:#00aaff08; }
+.load-btn-analizados:hover { border-color:#00aaff66; background:#00aaff12; }
+.load-btn-analizados.loaded { border-color:#00aaff55; background:#00aaff12; }
+.load-btn-sap { border-color:#44cc7733; background:#44cc7708; }
+.load-btn-sap:hover { border-color:#44cc7766; background:#44cc7712; }
+.load-btn-sap.loaded { border-color:#44cc7755; background:#44cc7712; }
+.load-btn-ico { font-size:1.4rem; margin-bottom:5px; }
+.load-btn-lbl { font-size:0.72rem; font-weight:700; margin-bottom:2px; }
+.load-btn-sub { font-size:0.62rem; }
+.load-btn-count { font-size:1rem; font-weight:800; margin-top:4px; }
+input[type=file] { display:none; }
+
+/* Barra progreso op */
+.op-progress { margin-top:14px; }
+.op-progress-bar { height:7px; background:#080f1a; border-radius:10px; overflow:hidden; margin-top:5px; }
+.op-progress-fill { height:100%; border-radius:10px; background:var(--c); transition:width .8s; }
+.op-progress-labels { display:flex; justify-content:space-between; font-size:0.65rem; color:#4488aa; margin-top:4px; }
+
+/* TIPOS SAP */
+.tipos-sap-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:24px; }
+.tipo-sap-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #ffffff08; border-radius:12px; padding:14px;
+  text-align:center; position:relative; overflow:hidden;
+}
+.tipo-sap-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--c); }
+.tipo-sap-ico { font-size:1.5rem; margin-bottom:6px; }
+.tipo-sap-val { font-size:1.4rem; font-weight:900; color:var(--c); margin-bottom:2px; }
+.tipo-sap-lbl { font-size:0.65rem; color:#4488aa; text-transform:uppercase; letter-spacing:.3px; }
+.tipo-sap-ops { font-size:0.62rem; color:#2a4055; margin-top:3px; }
+
+/* CHARTS */
+.charts-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.chart-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #ffffff08; border-radius:16px; padding:20px 22px;
+}
+.chart-card h3 { font-size:0.69rem; color:#4488aa; text-transform:uppercase; letter-spacing:.6px; margin-bottom:16px; font-weight:700; }
+canvas { max-height:250px; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:9999;
+  background:#0a2a15; border:1px solid #44cc7744; border-radius:10px;
+  padding:12px 20px; font-size:0.8rem; color:#44cc77;
+  transform:translateY(100px); opacity:0; transition:all .3s;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">🚑</div>
+    <div>
+      <h1>Asignación de Tags Virtuales a Exentos</h1>
+      <p>AUSA · Área Validación · Seguimiento 2026</p>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge b-blue">📋 <span id="badge-anal">0</span> analizados</span>
+    <span class="badge b-green">🏷️ <span id="badge-sap">0</span> cargados en SAP</span>
+    <span class="badge b-gold">📊 <span id="badge-pct">0%</span> conversión</span>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- KPIs GLOBALES -->
+  <div class="kpi-row">
+    <div class="kpi" style="--c1:#00aaff;--c2:#0066cc;">
+      <div class="kpi-ico">🔍</div>
+      <div class="kpi-val" id="kpi-anal">0</div>
+      <div class="kpi-lbl">Total Analizados</div>
+      <div class="kpi-sub">Por ambos operadores</div>
+    </div>
+    <div class="kpi" style="--c1:#44cc77;--c2:#008844;">
+      <div class="kpi-ico">🏷️</div>
+      <div class="kpi-val" id="kpi-sap">0</div>
+      <div class="kpi-lbl">Cargados en SAP</div>
+      <div class="kpi-sub">Con tag virtual asignado</div>
+    </div>
+    <div class="kpi" style="--c1:#ffaa00;--c2:#cc6600;">
+      <div class="kpi-ico">⏳</div>
+      <div class="kpi-val" id="kpi-pend">0</div>
+      <div class="kpi-lbl">Pendientes de SAP</div>
+      <div class="kpi-sub" id="kpi-pend-sub">Identificados sin tag aún</div>
+    </div>
+  </div>
+
+  <!-- OPERADORES -->
+  <div class="sec">👥 Carga por operador</div>
+  <div class="ops-grid">
+
+    <!-- JALDIN -->
+    <div class="op-card" style="--c:#00aaff;">
+      <div class="op-header">
+        <div class="op-avatar">EJ</div>
+        <div>
+          <div class="op-name">Ezequiel Jaldin</div>
+          <div class="op-role">Operador · Tags Virtuales Exentos</div>
+        </div>
+      </div>
+      <div class="op-stats">
+        <div class="op-stat-card">
+          <div class="op-stat-val" id="ej-anal" style="color:#00aaff;">0</div>
+          <div class="op-stat-lbl">Analizados</div>
+        </div>
+        <div class="op-stat-card">
+          <div class="op-stat-val" id="ej-sap" style="color:#44cc77;">0</div>
+          <div class="op-stat-lbl">En SAP</div>
+        </div>
+        <div class="op-stat-card">
+          <div class="op-stat-val" id="ej-pct" style="color:#ffaa00;">0%</div>
+          <div class="op-stat-lbl">Conversión</div>
+        </div>
+      </div>
+      <div class="op-btns">
+        <div class="load-btn-wrap load-btn-analizados" id="wrap-ej-anal" onclick="document.getElementById('file-ej-anal').click()">
+          <div class="load-btn-ico">📋</div>
+          <div class="load-btn-lbl" style="color:#44aaff;">Analizados</div>
+          <div class="load-btn-sub" style="color:#2a4055;" id="sub-ej-anal">Cargá el Excel de lo revisado</div>
+          <div class="load-btn-count" id="cnt-ej-anal" style="color:#44aaff;display:none;"></div>
+          <input type="file" id="file-ej-anal" accept=".xlsx,.xls" onchange="loadAnalizados('ej', this)">
+        </div>
+        <div class="load-btn-wrap load-btn-sap" id="wrap-ej-sap" onclick="document.getElementById('file-ej-sap').click()">
+          <div class="load-btn-ico">🏷️</div>
+          <div class="load-btn-lbl" style="color:#44cc77;">Cargados en SAP</div>
+          <div class="load-btn-sub" style="color:#2a4055;" id="sub-ej-sap">Cargá el Excel de SAP</div>
+          <div class="load-btn-count" id="cnt-ej-sap" style="color:#44cc77;display:none;"></div>
+          <input type="file" id="file-ej-sap" accept=".xlsx,.xls" onchange="loadSAP('ej', this)">
+        </div>
+      </div>
+      <div class="op-progress">
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:#4488aa;">
+          <span>Progreso de conversión</span>
+          <span id="ej-prog-lbl">0 / 0</span>
+        </div>
+        <div class="op-progress-bar"><div class="op-progress-fill" id="ej-prog-fill" style="width:0%;"></div></div>
+      </div>
+    </div>
+
+    <!-- GONZALEZ -->
+    <div class="op-card" style="--c:#44cc77;">
+      <div class="op-header">
+        <div class="op-avatar">LG</div>
+        <div>
+          <div class="op-name">Leonardo González</div>
+          <div class="op-role">Operador · Tags Virtuales Exentos</div>
+        </div>
+      </div>
+      <div class="op-stats">
+        <div class="op-stat-card">
+          <div class="op-stat-val" id="lg-anal" style="color:#44cc77;">0</div>
+          <div class="op-stat-lbl">Analizados</div>
+        </div>
+        <div class="op-stat-card">
+          <div class="op-stat-val" id="lg-sap" style="color:#44cc77;">0</div>
+          <div class="op-stat-lbl">En SAP</div>
+        </div>
+        <div class="op-stat-card">
+          <div class="op-stat-val" id="lg-pct" style="color:#ffaa00;">0%</div>
+          <div class="op-stat-lbl">Conversión</div>
+        </div>
+      </div>
+      <div class="op-btns">
+        <div class="load-btn-wrap load-btn-analizados" id="wrap-lg-anal" onclick="document.getElementById('file-lg-anal').click()">
+          <div class="load-btn-ico">📋</div>
+          <div class="load-btn-lbl" style="color:#44aaff;">Analizados</div>
+          <div class="load-btn-sub" style="color:#2a4055;" id="sub-lg-anal">Cargá el Excel de lo revisado</div>
+          <div class="load-btn-count" id="cnt-lg-anal" style="color:#44aaff;display:none;"></div>
+          <input type="file" id="file-lg-anal" accept=".xlsx,.xls" onchange="loadAnalizados('lg', this)">
+        </div>
+        <div class="load-btn-wrap load-btn-sap" id="wrap-lg-sap" onclick="document.getElementById('file-lg-sap').click()">
+          <div class="load-btn-ico">🏷️</div>
+          <div class="load-btn-lbl" style="color:#44cc77;">Cargados en SAP</div>
+          <div class="load-btn-sub" style="color:#2a4055;" id="sub-lg-sap">Cargá el Excel de SAP</div>
+          <div class="load-btn-count" id="cnt-lg-sap" style="color:#44cc77;display:none;"></div>
+          <input type="file" id="file-lg-sap" accept=".xlsx,.xls" onchange="loadSAP('lg', this)">
+        </div>
+      </div>
+      <div class="op-progress">
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:#4488aa;">
+          <span>Progreso de conversión</span>
+          <span id="lg-prog-lbl">0 / 0</span>
+        </div>
+        <div class="op-progress-bar"><div class="op-progress-fill" id="lg-prog-fill" style="width:0%;background:#44cc77;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPOS EN SAP -->
+  <div class="sec">📊 Distribución por tipo de exento — Cargados en SAP</div>
+  <div class="tipos-sap-grid" id="tipos-sap-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:20px;color:#2a4055;font-size:0.8rem;">
+      Cargá los Excel de SAP para ver la distribución por tipo
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Tipos de exentos cargados en SAP</h3>
+      <canvas id="tiposChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Analizados vs Cargados en SAP por operador</h3>
+      <canvas id="compChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tick = '#4488aa';
+let charts = {};
+
+const iconos = {'Policia':'🚔','Ambulancia':'🚑','Prefectura':'⚓','Gendarmeria':'🪖','Ejercito Argentino':'🎖️','Servicio Penitenciario':'🔒','Bomberos':'🚒','Ministerios':'🏛️','SAME':'🚐','INCUCAI':'🏥','Espacios Verdes CABA':'🌳','Otros':'🚗'};
+const colores = {'Policia':'#0088ff','Ambulancia':'#ff4466','Prefectura':'#aa44ff','Gendarmeria':'#44cc77','Ejercito Argentino':'#cc8800','Servicio Penitenciario':'#6644aa','Bomberos':'#ff6600','Ministerios':'#44aaaa','SAME':'#ffaa00','INCUCAI':'#ff88aa','Espacios Verdes CABA':'#66bb44','Otros':'#888888'};
+
+let state = {
+  ej: { anal:0, sap:0, tipos:{} },
+  lg: { anal:0, sap:0, tipos:{} }
+};
+
+function fmt(n) { return Math.round(n).toLocaleString('es-AR'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// Detectar tipo de exento desde columnas del Excel
+function detectarTipo(row) {
+  const cols = Object.values(row).map(v => String(v||'').toLowerCase());
+  const all = cols.join(' ');
+  if (all.includes('ambulancia') || all.includes('ambu')) return 'Ambulancia';
+  if (all.includes('bombero')) return 'Bomberos';
+  if (all.includes('policia') || all.includes('policía')) return 'Policia';
+  if (all.includes('gendarm')) return 'Gendarmeria';
+  if (all.includes('prefectura')) return 'Prefectura';
+  if (all.includes('ejercito') || all.includes('ejército')) return 'Ejercito Argentino';
+  if (all.includes('penitenciario') || all.includes('penitenci')) return 'Servicio Penitenciario';
+  if (all.includes('ministerio')) return 'Ministerios';
+  if (all.includes('same')) return 'SAME';
+  if (all.includes('incucai')) return 'INCUCAI';
+  if (all.includes('verde') || all.includes('caba')) return 'Espacios Verdes CABA';
+  // Buscar en columna Tipo de Exento específicamente
+  for (const [key, val] of Object.entries(row)) {
+    if (String(key).toLowerCase().includes('tipo')) {
+      const v = String(val||'').trim();
+      if (v && v !== 'nan') return v;
+    }
+  }
+  return 'Otros';
+}
+
+function loadAnalizados(op, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws);
+    state[op].anal = rows.length;
+
+    // UI
+    document.getElementById(`wrap-${op}-anal`).classList.add('loaded');
+    document.getElementById(`sub-${op}-anal`).textContent = `✅ ${fmt(rows.length)} registros cargados`;
+    const cnt = document.getElementById(`cnt-${op}-anal`);
+    cnt.textContent = fmt(rows.length); cnt.style.display = 'block';
+
+    updateAll();
+    showToast(`✅ ${fmt(rows.length)} registros analizados de ${op === 'ej' ? 'Jaldin' : 'González'}`);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function loadSAP(op, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws);
+
+    // Detectar tipo por nombre del archivo o contenido
+    const fileName = file.name.toUpperCase();
+    let tipoForzado = null;
+    if (fileName.includes('AMBULANCIA')) tipoForzado = 'Ambulancia';
+    else if (fileName.includes('BOMBERO')) tipoForzado = 'Bomberos';
+    else if (fileName.includes('POLICIA') || fileName.includes('POLICÍA')) tipoForzado = 'Policia';
+    else if (fileName.includes('GENDARM')) tipoForzado = 'Gendarmeria';
+    else if (fileName.includes('PREFECTURA')) tipoForzado = 'Prefectura';
+    else if (fileName.includes('EJERCITO') || fileName.includes('EJÉRCITO')) tipoForzado = 'Ejercito Argentino';
+    else if (fileName.includes('PENITENCIARIO')) tipoForzado = 'Servicio Penitenciario';
+
+    const tipos = {};
+    rows.forEach(r => {
+      const tipo = tipoForzado || detectarTipo(r);
+      tipos[tipo] = (tipos[tipo] || 0) + 1;
+    });
+
+    // Acumular tipos (no reemplazar)
+    Object.entries(tipos).forEach(([t, n]) => {
+      state[op].tipos[t] = (state[op].tipos[t] || 0) + n;
+    });
+    state[op].sap = Object.values(state[op].tipos).reduce((s,v)=>s+v,0);
+
+    // UI
+    document.getElementById(`wrap-${op}-sap`).classList.add('loaded');
+    document.getElementById(`sub-${op}-sap`).textContent = `✅ ${fmt(state[op].sap)} tags en SAP`;
+    const cnt = document.getElementById(`cnt-${op}-sap`);
+    cnt.textContent = fmt(state[op].sap); cnt.style.display = 'block';
+
+    updateAll();
+    showToast(`✅ ${fmt(rows.length)} tags SAP cargados — detectado: ${tipoForzado || 'múltiples tipos'}`);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function updateAll() {
+  const totAnal = state.ej.anal + state.lg.anal;
+  const totSAP  = state.ej.sap  + state.lg.sap;
+  const pend    = Math.max(totAnal - totSAP, 0);
+  const pct     = totAnal > 0 ? (totSAP/totAnal*100).toFixed(1) : 0;
+
+  // KPIs globales
+  document.getElementById('kpi-anal').textContent = fmt(totAnal);
+  document.getElementById('kpi-sap').textContent  = fmt(totSAP);
+  document.getElementById('kpi-pend').textContent = fmt(pend);
+  document.getElementById('badge-anal').textContent = fmt(totAnal);
+  document.getElementById('badge-sap').textContent  = fmt(totSAP);
+  document.getElementById('badge-pct').textContent  = pct + '%';
+
+  // Por operador
+  ['ej','lg'].forEach(op => {
+    const d = state[op];
+    const p = d.anal > 0 ? (d.sap/d.anal*100).toFixed(1) : 0;
+    document.getElementById(`${op}-anal`).textContent = fmt(d.anal);
+    document.getElementById(`${op}-sap`).textContent  = fmt(d.sap);
+    document.getElementById(`${op}-pct`).textContent  = p + '%';
+    document.getElementById(`${op}-prog-lbl`).textContent = `${fmt(d.sap)} / ${fmt(d.anal)}`;
+    document.getElementById(`${op}-prog-fill`).style.width = Math.min(parseFloat(p), 100) + '%';
+  });
+
+  // Tipos SAP consolidados
+  const tiposGlobal = {};
+  ['ej','lg'].forEach(op => {
+    Object.entries(state[op].tipos).forEach(([t,n]) => {
+      tiposGlobal[t] = (tiposGlobal[t]||0) + n;
+    });
+  });
+
+  // Grid tipos
+  const grid = document.getElementById('tipos-sap-grid');
+  const sorted = Object.entries(tiposGlobal).sort((a,b)=>b[1]-a[1]);
+
+  if (sorted.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#2a4055;font-size:0.8rem;">Cargá los Excel de SAP para ver la distribución por tipo</div>';
+  } else {
+    grid.innerHTML = '';
+    sorted.forEach(([tipo, n]) => {
+      const color = colores[tipo] || '#666';
+      const icono = iconos[tipo] || '🚗';
+      const ejN = state.ej.tipos[tipo] || 0;
+      const lgN = state.lg.tipos[tipo] || 0;
+      grid.innerHTML += `
+      <div class="tipo-sap-card" style="--c:${color};">
+        <div class="tipo-sap-ico">${icono}</div>
+        <div class="tipo-sap-val">${fmt(n)}</div>
+        <div class="tipo-sap-lbl">${tipo}</div>
+        <div class="tipo-sap-ops">EJ: ${ejN} · LG: ${lgN}</div>
+      </div>`;
+    });
+  }
+
+  updateCharts(sorted, tiposGlobal);
+}
+
+function makeChart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if (el) charts[id] = new Chart(el, cfg);
+}
+
+function updateCharts(sorted, tiposGlobal) {
+  if (sorted.length === 0) return;
+
+  const tipos = sorted.map(([k])=>k);
+  const cols  = tipos.map(t=>colores[t]||'#888');
+
+  makeChart('tiposChart', {
+    type:'doughnut',
+    data:{
+      labels: tipos,
+      datasets:[{ data:sorted.map(([,v])=>v), backgroundColor:cols.map(c=>c+'bb'), borderColor:'#080f1a', borderWidth:2 }]
+    },
+    options:{responsive:true,cutout:'58%',
+      plugins:{legend:{position:'right',labels:{color:tick,boxWidth:9,font:{size:9},padding:6}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmt(ctx.parsed)}`}}
+      }}
+  });
+
+  makeChart('compChart', {
+    type:'bar',
+    data:{
+      labels:['Ezequiel Jaldin','Leonardo González'],
+      datasets:[
+        {label:'Analizados', data:[state.ej.anal, state.lg.anal], backgroundColor:'#00aaff66', borderColor:'#00aaff', borderWidth:1, borderRadius:4},
+        {label:'En SAP',     data:[state.ej.sap,  state.lg.sap],  backgroundColor:'#44cc7766', borderColor:'#44cc77', borderWidth:1, borderRadius:4},
+      ]
+    },
+    options:{responsive:true,
+      plugins:{legend:{labels:{color:tick,boxWidth:10,font:{size:10}}}},
+      scales:{x:{ticks:{color:tick},grid:{color:'#0d2030'}},y:{ticks:{color:tick},grid:{color:'#0d2030'}}}
+    }
+  });
+}
+</script>
+</body>
+</html>
