@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tags Virtuales a Exentos – AUSA · Julio 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',sans-serif; background:#080f1a; color:#ddeeff; min-height:100vh; }
+
+header {
+  background:linear-gradient(135deg,#0a1e35,#060e1a);
+  border-bottom:1px solid #00aaff22;
+  padding:20px 36px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.logo { display:flex; align-items:center; gap:16px; }
+.logo-box {
+  width:52px; height:52px; background:linear-gradient(135deg,#005588,#0099dd);
+  border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+  box-shadow:0 4px 20px #009ee344;
+}
+.logo h1 { font-size:1.15rem; font-weight:800; color:#fff; }
+.logo p  { font-size:0.7rem; color:#4488aa; margin-top:3px; }
+.badges { display:flex; gap:8px; flex-wrap:wrap; }
+.badge { font-size:0.68rem; border-radius:20px; padding:5px 14px; font-weight:600; }
+.b-blue  { background:#00aaff15; color:#44ccff; border:1px solid #00aaff33; }
+.b-green { background:#44cc7715; color:#44cc77; border:1px solid #44cc7733; }
+
+.main { padding:24px 36px; }
+.sec { font-size:0.72rem; color:#4488aa; text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.sec::after { content:''; flex:1; height:1px; background:#0d2030; }
+
+/* KPI TOP */
+.kpi-top { display:grid; grid-template-columns:1.5fr 1fr; gap:16px; margin-bottom:24px; }
+.kpi-input-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #00aaff22; border-radius:16px; padding:20px 24px;
+  position:relative; overflow:hidden;
+}
+.kpi-input-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#00aaff,#0066cc); }
+.kpi-input-label { font-size:0.65rem; color:#4488aa; text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; font-weight:600; }
+.kpi-input-field {
+  width:100%; padding:10px 14px; border-radius:10px;
+  border:1px solid #00aaff33; background:#080f1a;
+  color:#fff; font-size:2rem; font-weight:900;
+  font-family:'Segoe UI',sans-serif; outline:none;
+  transition:border-color .2s;
+}
+.kpi-input-field:focus { border-color:#00aaff88; }
+.kpi-input-sub { font-size:0.65rem; color:#2a4055; margin-top:8px; }
+
+.kpi-tags-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #44cc7722; border-radius:16px; padding:20px 24px;
+  position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:center;
+}
+.kpi-tags-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#44cc77,#008844); }
+.kpi-tags-ico { font-size:1.5rem; margin-bottom:8px; }
+.kpi-tags-val { font-size:2.2rem; font-weight:900; color:#44cc77; line-height:1; margin-bottom:4px; }
+.kpi-tags-lbl { font-size:0.65rem; color:#4488aa; text-transform:uppercase; letter-spacing:.6px; }
+.kpi-tags-sub { font-size:0.68rem; color:#2a5a3a; margin-top:4px; }
+
+/* FORMULARIO IDENTIFICADOS */
+.form-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #aa66ff22; border-radius:16px; padding:20px 24px; margin-bottom:24px;
+}
+.form-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+.form-title { font-size:0.82rem; font-weight:700; color:#cc99ff; }
+.form-sub { font-size:0.68rem; color:#4a3a6a; margin-top:2px; }
+.form-btn {
+  padding:9px 22px; border-radius:9px;
+  background:linear-gradient(135deg,#5500aa,#aa66ff);
+  border:none; color:#fff; font-size:0.8rem; font-weight:700;
+  cursor:pointer; font-family:'Segoe UI',sans-serif; transition:all .2s;
+}
+.form-btn:hover { transform:translateY(-1px); box-shadow:0 4px 15px #aa66ff44; }
+.form-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.form-item {
+  background:#080f1a; border:1px solid #aa66ff15; border-radius:10px; padding:12px;
+}
+.form-item-header { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.form-item-ico { font-size:1.1rem; }
+.form-item-name { font-size:0.72rem; font-weight:700; color:#cce0ee; }
+.form-item-input {
+  width:100%; padding:7px; border-radius:6px;
+  border:1px solid #aa66ff22; background:#0d1e30;
+  color:#fff; font-size:1rem; font-weight:700;
+  text-align:center; font-family:'Segoe UI',sans-serif; outline:none;
+}
+.form-item-input:focus { border-color:#aa66ff66; }
+
+/* STOCK POR TIPO */
+.tipos-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:24px; }
+.tipo-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #ffffff08; border-radius:12px; padding:14px 16px;
+  display:flex; align-items:center; gap:12px; position:relative; overflow:hidden;
+}
+.tipo-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--c); }
+.tipo-ico { font-size:1.6rem; flex-shrink:0; }
+.tipo-info { flex:1; min-width:0; }
+.tipo-nombre { font-size:0.8rem; font-weight:700; color:#cce0ee; margin-bottom:5px; }
+.tipo-bars { display:flex; flex-direction:column; gap:3px; }
+.tipo-bar-row { display:flex; align-items:center; gap:6px; }
+.tipo-bar-lbl { font-size:0.6rem; color:#4488aa; min-width:75px; }
+.bar-bg { flex:1; height:6px; background:#080f1a; border-radius:10px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:10px; transition:width .8s; }
+.tipo-right { text-align:right; flex-shrink:0; }
+.tipo-nums { font-size:0.78rem; font-weight:700; color:#fff; }
+.tipo-nums-sub { font-size:0.6rem; color:#334455; margin-top:1px; }
+.pct-pill { display:inline-block; padding:3px 9px; border-radius:10px; font-size:0.68rem; font-weight:700; margin-top:5px; }
+.pill-100  { background:#0a2215; color:#44ee88; border:1px solid #1a5030; }
+.pill-high { background:#0a2215; color:#44cc77; border:1px solid #1a4a28; }
+.pill-mid  { background:#1a1508; color:#ccaa22; border:1px solid #4a4010; }
+.pill-low  { background:#1a0808; color:#ee6644; border:1px solid #5a1a1a; }
+.pill-zero { background:#0d1520; color:#334455; border:1px solid #1a2535; }
+
+/* CHARTS */
+.charts-row { display:grid; grid-template-columns:1fr 1.4fr; gap:16px; margin-bottom:24px; }
+.chart-card {
+  background:linear-gradient(145deg,#0d1e30,#080f1a);
+  border:1px solid #ffffff08; border-radius:16px; padding:20px 22px;
+}
+.chart-card h3 { font-size:0.69rem; color:#4488aa; text-transform:uppercase; letter-spacing:.6px; margin-bottom:16px; font-weight:700; }
+canvas { max-height:260px; }
+
+/* UPLOAD TAGS */
+.upload-card-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.tag-card {
+  background:#080f1a; border:1px dashed #00aaff22; border-radius:12px;
+  padding:16px 12px; text-align:center; transition:all .2s; cursor:pointer;
+}
+.tag-card:hover { border-color:#00aaff44; background:#0a1828; }
+.tag-card.loaded { border-style:solid; border-color:#44cc7733; background:#091a10; }
+.tag-emoji { font-size:1.6rem; margin-bottom:6px; }
+.tag-name { font-size:0.72rem; font-weight:700; color:#88aabb; margin-bottom:3px; }
+.tag-count { font-size:1.1rem; font-weight:800; color:#44cc77; margin-bottom:4px; display:none; }
+.tag-card.loaded .tag-count { display:block; }
+.tag-status { font-size:0.62rem; color:#2a4055; margin-bottom:8px; }
+.tag-card.loaded .tag-status { color:#44cc77; }
+.tag-btn {
+  padding:5px 12px; border-radius:7px; border:1px solid #00aaff22;
+  background:transparent; color:#4488aa; font-size:0.68rem;
+  cursor:pointer; font-family:'Segoe UI',sans-serif; display:inline-block;
+}
+.tag-card.loaded .tag-btn { border-color:#44cc7733; color:#44cc77; background:#0a2215; }
+input[type=file] { display:none; }
+.upload-nota { margin-top:12px; font-size:0.67rem; color:#2a4055; text-align:center; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:9999;
+  background:#0a2a15; border:1px solid #44cc7744; border-radius:10px;
+  padding:12px 20px; font-size:0.8rem; color:#44cc77;
+  transform:translateY(100px); opacity:0; transition:all .3s;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">🚑</div>
+    <div>
+      <h1>Asignación de Tags Virtuales a Exentos</h1>
+      <p>AUSA · Área Validación · Julio 2026</p>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge b-blue">📅 Julio 2026</span>
+    <span class="badge b-green" id="badge-tags">🏷️ 0 tags asignados</span>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- KPI TOP -->
+  <div class="kpi-top">
+    <div class="kpi-input-card">
+      <div class="kpi-input-label">📋 Total de casos analizados en el período</div>
+      <input type="number" class="kpi-input-field" id="inp-total" min="0"
+        placeholder="Ingresá el total..." oninput="actualizarKPIs()">
+      <div class="kpi-input-sub">Ingresá el número total de imágenes/vehículos analizados por los operadores</div>
+    </div>
+    <div class="kpi-tags-card">
+      <div class="kpi-tags-ico">🏷️</div>
+      <div class="kpi-tags-val" id="kpi-tags">0</div>
+      <div class="kpi-tags-lbl">Tags Asignados</div>
+      <div class="kpi-tags-sub" id="kpi-tags-sub">Cargá los Excel para ver el total</div>
+    </div>
+  </div>
+
+  <!-- FORMULARIO IDENTIFICADOS -->
+  <div class="sec">✏️ Exentos identificados por tipo</div>
+  <div class="form-card">
+    <div class="form-header">
+      <div>
+        <div class="form-title">Ingresá la cantidad de vehículos únicos identificados por tipo</div>
+        <div class="form-sub">Completá los campos y hacé click en "Actualizar" para refrescar el tablero</div>
+      </div>
+      <button class="form-btn" onclick="guardarIdentificados()">💾 Actualizar tablero</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🚔</span><span class="form-item-name">Policía</span></div><input type="number" class="form-item-input" id="fi-Policia" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🚑</span><span class="form-item-name">Ambulancia</span></div><input type="number" class="form-item-input" id="fi-Ambulancia" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">⚓</span><span class="form-item-name">Prefectura</span></div><input type="number" class="form-item-input" id="fi-Prefectura" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🪖</span><span class="form-item-name">Gendarmería</span></div><input type="number" class="form-item-input" id="fi-Gendarmeria" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🎖️</span><span class="form-item-name">Ejército Arg.</span></div><input type="number" class="form-item-input" id="fi-Ejercito Argentino" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🔒</span><span class="form-item-name">Serv. Penitenciario</span></div><input type="number" class="form-item-input" id="fi-Servicio Penitenciario" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🚒</span><span class="form-item-name">Bomberos</span></div><input type="number" class="form-item-input" id="fi-Bomberos" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🏛️</span><span class="form-item-name">Ministerios</span></div><input type="number" class="form-item-input" id="fi-Ministerios" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🚐</span><span class="form-item-name">SAME</span></div><input type="number" class="form-item-input" id="fi-SAME" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🏥</span><span class="form-item-name">INCUCAI</span></div><input type="number" class="form-item-input" id="fi-INCUCAI" min="0" placeholder="0"></div>
+      <div class="form-item"><div class="form-item-header"><span class="form-item-ico">🌳</span><span class="form-item-name">Esp. Verdes CABA</span></div><input type="number" class="form-item-input" id="fi-Espacios Verdes CABA" min="0" placeholder="0"></div>
+    </div>
+  </div>
+
+  <!-- STOCK POR TIPO -->
+  <div class="sec">📊 Stock por tipo de exento — Identificados vs Tags asignados</div>
+  <div class="tipos-grid" id="tipos-grid"></div>
+
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Distribución de exentos identificados</h3>
+      <canvas id="donutChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Con tag vs Pendientes por tipo</h3>
+      <canvas id="barChart"></canvas>
+    </div>
+  </div>
+
+  <!-- UPLOAD TAGS -->
+  <div class="sec">📂 Actualizar tags asignados por tipo</div>
+  <div class="upload-card-grid">
+    <div class="tag-card" id="tc-ambulancia" onclick="document.getElementById('tf-ambulancia').click()">
+      <div class="tag-emoji">🚑</div><div class="tag-name">Ambulancias</div>
+      <div class="tag-count" id="tv-ambulancia">0</div>
+      <div class="tag-status" id="ts-ambulancia">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-ambulancia" accept=".xlsx,.xls" onchange="loadTags('Ambulancia','ambulancia',this)">
+    </div>
+    <div class="tag-card" id="tc-bomberos" onclick="document.getElementById('tf-bomberos').click()">
+      <div class="tag-emoji">🚒</div><div class="tag-name">Bomberos</div>
+      <div class="tag-count" id="tv-bomberos">0</div>
+      <div class="tag-status" id="ts-bomberos">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-bomberos" accept=".xlsx,.xls" onchange="loadTags('Bomberos','bomberos',this)">
+    </div>
+    <div class="tag-card" id="tc-policia" onclick="document.getElementById('tf-policia').click()">
+      <div class="tag-emoji">🚔</div><div class="tag-name">Policía</div>
+      <div class="tag-count" id="tv-policia">0</div>
+      <div class="tag-status" id="ts-policia">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-policia" accept=".xlsx,.xls" onchange="loadTags('Policia','policia',this)">
+    </div>
+    <div class="tag-card" id="tc-gendarmeria" onclick="document.getElementById('tf-gendarmeria').click()">
+      <div class="tag-emoji">🪖</div><div class="tag-name">Gendarmería</div>
+      <div class="tag-count" id="tv-gendarmeria">0</div>
+      <div class="tag-status" id="ts-gendarmeria">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-gendarmeria" accept=".xlsx,.xls" onchange="loadTags('Gendarmeria','gendarmeria',this)">
+    </div>
+    <div class="tag-card" id="tc-prefectura" onclick="document.getElementById('tf-prefectura').click()">
+      <div class="tag-emoji">⚓</div><div class="tag-name">Prefectura</div>
+      <div class="tag-count" id="tv-prefectura">0</div>
+      <div class="tag-status" id="ts-prefectura">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-prefectura" accept=".xlsx,.xls" onchange="loadTags('Prefectura','prefectura',this)">
+    </div>
+    <div class="tag-card" id="tc-ejercito" onclick="document.getElementById('tf-ejercito').click()">
+      <div class="tag-emoji">🎖️</div><div class="tag-name">Ejército Arg.</div>
+      <div class="tag-count" id="tv-ejercito">0</div>
+      <div class="tag-status" id="ts-ejercito">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-ejercito" accept=".xlsx,.xls" onchange="loadTags('Ejercito Argentino','ejercito',this)">
+    </div>
+    <div class="tag-card" id="tc-servicio" onclick="document.getElementById('tf-servicio').click()">
+      <div class="tag-emoji">🔒</div><div class="tag-name">Serv. Penitenciario</div>
+      <div class="tag-count" id="tv-servicio">0</div>
+      <div class="tag-status" id="ts-servicio">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-servicio" accept=".xlsx,.xls" onchange="loadTags('Servicio Penitenciario','servicio',this)">
+    </div>
+    <div class="tag-card" id="tc-otros" onclick="document.getElementById('tf-otros').click()">
+      <div class="tag-emoji">🏛️</div><div class="tag-name">Otros tipos</div>
+      <div class="tag-count" id="tv-otros">0</div>
+      <div class="tag-status" id="ts-otros">Pendiente de carga</div>
+      <div class="tag-btn">Cargar Excel</div>
+      <input type="file" id="tf-otros" accept=".xlsx,.xls" onchange="loadTags('Otros','otros',this)">
+    </div>
+  </div>
+  <div class="upload-nota">💡 Al cargar un Excel el tablero se actualiza automáticamente</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const tick = '#4488aa', gridColor = {color:'#0d2030'};
+let charts = {};
+
+// ── DATOS (todos en 0 para empezar de cero) ──
+let identificados = {
+  'Policia':0,'Ambulancia':0,'Prefectura':0,'Gendarmeria':0,
+  'Ejercito Argentino':0,'Servicio Penitenciario':0,'Bomberos':0,
+  'Ministerios':0,'SAME':0,'INCUCAI':0,'Espacios Verdes CABA':0
+};
+let tagsData = {
+  'Ambulancia':0,'Bomberos':0,'Policia':0,'Gendarmeria':0,
+  'Prefectura':0,'Ejercito Argentino':0,'Servicio Penitenciario':0,
+  'Ministerios':0,'SAME':0,'INCUCAI':0,'Espacios Verdes CABA':0
+};
+
+const iconos = {'Policia':'🚔','Ambulancia':'🚑','Prefectura':'⚓','Gendarmeria':'🪖','Ejercito Argentino':'🎖️','Servicio Penitenciario':'🔒','Bomberos':'🚒','Ministerios':'🏛️','SAME':'🚐','INCUCAI':'🏥','Espacios Verdes CABA':'🌳'};
+const colores = {'Policia':'#0088ff','Ambulancia':'#ff4466','Prefectura':'#aa44ff','Gendarmeria':'#44cc77','Ejercito Argentino':'#cc8800','Servicio Penitenciario':'#6644aa','Bomberos':'#ff6600','Ministerios':'#44aaaa','SAME':'#ffaa00','INCUCAI':'#ff88aa','Espacios Verdes CABA':'#66bb44'};
+
+function fmt(n) { return Math.round(n).toLocaleString('es-AR'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+function pillClass(pct) {
+  if (pct >= 100) return 'pill-100';
+  if (pct >= 60)  return 'pill-high';
+  if (pct > 0)    return 'pill-mid';
+  return 'pill-zero';
+}
+function pillLabel(pct) {
+  if (pct >= 100) return '100% ✅';
+  if (pct > 0)    return pct.toFixed(0) + '%';
+  return 'Pendiente';
+}
+
+function actualizarKPIs() {
+  const totTags  = Object.values(tagsData).reduce((s,v)=>s+v,0);
+  const totIdent = Object.values(identificados).reduce((s,v)=>s+v,0);
+  const totalIngresado = parseInt(document.getElementById('inp-total').value) || 0;
+
+  document.getElementById('kpi-tags').textContent = fmt(totTags);
+  document.getElementById('badge-tags').textContent = `🏷️ ${fmt(totTags)} tags asignados`;
+
+  if (totalIngresado > 0 && totTags > 0) {
+    document.getElementById('kpi-tags-sub').textContent = `${(totTags/totalIngresado*100).toFixed(1)}% del total analizado`;
+  } else if (totIdent > 0 && totTags > 0) {
+    document.getElementById('kpi-tags-sub').textContent = `${(totTags/totIdent*100).toFixed(1)}% de los identificados`;
+  } else {
+    document.getElementById('kpi-tags-sub').textContent = 'Cargá los Excel para ver el total';
+  }
+}
+
+function updateDashboard() {
+  actualizarKPIs();
+
+  // Tipos grid
+  const grid = document.getElementById('tipos-grid');
+  grid.innerHTML = '';
+  const sorted = Object.entries(identificados).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  
+  // Si no hay datos aún, mostrar mensaje
+  if (sorted.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#2a4055;font-size:0.8rem;">Completá el formulario de identificados y hacé click en "Actualizar tablero"</div>';
+    updateCharts([]);
+    return;
+  }
+
+  sorted.forEach(([tipo, ident]) => {
+    const asig  = tagsData[tipo] || 0;
+    const pend  = Math.max(ident - asig, 0);
+    const pctA  = ident > 0 ? Math.min((asig/ident*100), 100) : 0;
+    const color = colores[tipo] || '#666';
+    const icono = iconos[tipo] || '🚗';
+    const pc    = pillClass(pctA);
+    const pl    = pillLabel(pctA);
+
+    grid.innerHTML += `
+    <div class="tipo-card" style="--c:${color};">
+      <div class="tipo-ico">${icono}</div>
+      <div class="tipo-info">
+        <div class="tipo-nombre">${tipo}</div>
+        <div class="tipo-bars">
+          <div class="tipo-bar-row">
+            <div class="tipo-bar-lbl" style="color:#44cc77;">Con tag (${asig})</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${pctA}%;background:${color};"></div></div>
+          </div>
+          <div class="tipo-bar-row">
+            <div class="tipo-bar-lbl" style="color:#334455;">Pendientes (${pend})</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${100-pctA}%;background:#0d2030;"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tipo-right">
+        <div class="tipo-nums">${asig}/${ident}</div>
+        <div class="tipo-nums-sub">con tag / total</div>
+        <div class="pct-pill ${pc}">${pl}</div>
+      </div>
+    </div>`;
+  });
+
+  updateCharts(sorted);
+}
+
+function updateCharts(sorted) {
+  if (charts['donutChart']) charts['donutChart'].destroy();
+  if (charts['barChart']) charts['barChart'].destroy();
+
+  if (sorted.length === 0) return;
+
+  const tipos = sorted.map(([k])=>k);
+  const cols  = tipos.map(t=>colores[t]||'#666');
+
+  charts['donutChart'] = new Chart(document.getElementById('donutChart'), {
+    type:'doughnut',
+    data:{
+      labels: tipos,
+      datasets:[{ data: sorted.map(([,v])=>v), backgroundColor: cols.map(c=>c+'bb'), borderColor:'#080f1a', borderWidth:2 }]
+    },
+    options:{responsive:true,cutout:'58%',plugins:{
+      legend:{position:'right',labels:{color:tick,boxWidth:9,font:{size:9},padding:6}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmt(ctx.parsed)}`}}
+    }}
+  });
+
+  charts['barChart'] = new Chart(document.getElementById('barChart'), {
+    type:'bar',
+    data:{
+      labels: tipos,
+      datasets:[
+        {label:'Con tag',    data:tipos.map(t=>tagsData[t]||0),                            backgroundColor:cols.map(c=>c+'99'), borderColor:cols, borderWidth:1, borderRadius:4},
+        {label:'Pendientes', data:tipos.map(t=>Math.max((identificados[t]||0)-(tagsData[t]||0),0)), backgroundColor:'#0d203099', borderColor:'#1a3050', borderWidth:1, borderRadius:4},
+      ]
+    },
+    options:{
+      responsive:true, indexAxis:'y',
+      plugins:{legend:{labels:{color:tick,boxWidth:9,font:{size:10}}}},
+      scales:{
+        x:{stacked:true,ticks:{color:tick},grid:gridColor},
+        y:{stacked:true,ticks:{color:tick,font:{size:9}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+function guardarIdentificados() {
+  const tipos = ['Policia','Ambulancia','Prefectura','Gendarmeria','Ejercito Argentino',
+    'Servicio Penitenciario','Bomberos','Ministerios','SAME','INCUCAI','Espacios Verdes CABA'];
+  tipos.forEach(tipo => {
+    const inp = document.getElementById('fi-' + tipo);
+    if (inp) identificados[tipo] = parseInt(inp.value) || 0;
+  });
+  updateDashboard();
+  const btn = document.querySelector('button.form-btn');
+  const orig = btn.textContent;
+  btn.textContent = '✅ Actualizado!';
+  btn.style.background = 'linear-gradient(135deg,#008844,#44cc77)';
+  setTimeout(()=>{ btn.textContent = orig; btn.style.background = 'linear-gradient(135deg,#5500aa,#aa66ff)'; }, 2000);
+  showToast('✅ Tablero actualizado correctamente');
+}
+
+function loadTags(tipo, key, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws);
+    const count = rows.filter(r => r['Dominio'] || r['Patente'] || Object.values(r)[0]).length;
+    tagsData[tipo] = count || rows.length;
+
+    const card   = document.getElementById(`tc-${key}`);
+    const status = document.getElementById(`ts-${key}`);
+    const tv     = document.getElementById(`tv-${key}`);
+    if (card)   card.classList.add('loaded');
+    if (status) { status.textContent = `✅ ${tagsData[tipo]} tags cargados`; status.classList.add('ok'); }
+    if (tv)     tv.textContent = tagsData[tipo];
+
+    updateDashboard();
+    showToast(`✅ ${tagsData[tipo]} tags de ${tipo} cargados`);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+window.addEventListener('load', updateDashboard);
+</script>
+</body>
+</html>
